@@ -31,6 +31,21 @@ module Protobuf
         nil
       end
 
+      def self.descriptor=(str_or_descriptor)
+        require 'protobuf/descriptors/google/protobuf/descriptor.pb'
+        if(String === str_or_descriptor)
+          @descriptor = ::Google::Protobuf::FieldDescriptorProto.decode(str_or_descriptor)
+        elsif ::Google::Protobuf::FieldDescriptorProto === str_or_descriptor
+          @descriptor = str_or_descriptor
+        else
+          raise "Incorrect field descriptor type: #{str_or_descriptor.class.name}"
+        end
+      end
+
+      def self.descriptor
+        @descriptor
+      end
+
       ##
       # Constructor
       #

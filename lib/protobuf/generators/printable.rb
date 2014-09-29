@@ -116,6 +116,10 @@ module Protobuf
         print_block(name, parent_klass, :class, &block)
       end
 
+      def print_descriptor(descriptor)
+        puts "self.descriptor = #{descriptor.encode().inspect}"
+      end
+
       # Use print_block to print a module.
       # Accepts a block for use with print_block.
       #

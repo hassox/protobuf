@@ -9,8 +9,26 @@ $LOAD_PATH << ::File.expand_path("../../lib", __FILE__)
 require 'protobuf'
 require 'protobuf/descriptors'
 require 'protobuf/code_generator'
+require 'protobuf/message'
+require 'protobuf/enum'
+require 'protobuf/rpc/service'
 
 request_bytes = STDIN.read
+code_generator = ::Protobuf::CodeGenerator.new(request_bytes.dup)
+
+# we need to compile all the things without requiring anything
+# so we can correctly apply options with extensions on the original import
+response = Google::Protobuf::Compiler::CodeGeneratorResponse.decode(code_generator.response_bytes)
+
+response.file.each do |file|
+  unless file.name == 'google/protobuf/descriptor.pb.rb'
+    eval <<-RUBY
+      def require(*args); end
+      #{file.content}
+    RUBY
+  end
+end
+
 code_generator = ::Protobuf::CodeGenerator.new(request_bytes)
 response_bytes = code_generator.response_bytes
 STDOUT.print(response_bytes)

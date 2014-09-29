@@ -7,7 +7,7 @@ module Protobuf
   module Rpc
     # Object to encapsulate the request/response types for a given service method
     #
-    RpcMethod = Struct.new("RpcMethod", :method, :request_type, :response_type)
+    RpcMethod = Struct.new("RpcMethod", :method, :request_type, :response_type, :options)
 
     class Service
       include ::Protobuf::Logging
@@ -17,6 +17,21 @@ module Protobuf
       DEFAULT_PORT = 9399
 
       attr_reader :env, :request
+
+      def self.descriptor=(str_or_descriptor)
+        require 'protobuf/descriptors/google/protobuf/descriptor.pb'
+        if(String === str_or_descriptor)
+          @descriptor = ::Google::Protobuf::ServiceDescriptorProto.decode(str_or_descriptor)
+        elsif ::Google::Protobuf::ServiceDescriptorProto === str_or_descriptor
+          @descriptor = str_or_descriptor
+        else
+          raise "Incorrect field descriptor type: #{str_or_descriptor.class.name}"
+        end
+      end
+
+      def self.descriptor
+        @descriptor
+      end
 
       ##
       # Constructor!
@@ -101,8 +116,8 @@ module Protobuf
       # This methods is only used by the generated service definitions
       # and not useful for user code.
       #
-      def self.rpc(method, request_type, response_type)
-        rpcs[method] = RpcMethod.new(method, request_type, response_type)
+      def self.rpc(method, request_type, response_type, opts = {})
+        rpcs[method] = RpcMethod.new(method, request_type, response_type, opts={})
       end
 
       # Hash containing the set of methods defined via `rpc`.

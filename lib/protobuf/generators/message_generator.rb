@@ -25,6 +25,7 @@ module Protobuf
         run_once(:compile_declaration) do
           if is_printable?
             print_class(descriptor.name, :message) do
+              print_descriptor(descriptor)
               group = GroupGenerator.new(current_indent)
               group.add_enums(descriptor.enum_type, :namespace => type_namespace)
               group.add_message_declarations(descriptor.nested_type)

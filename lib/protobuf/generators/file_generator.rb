@@ -109,7 +109,11 @@ module Protobuf
           header "Imports"
 
           descriptor.dependency.each do |dependency|
-            print_require(convert_filename(dependency))
+            if(dependency == 'google/protobuf/descriptor.proto')
+              puts "require 'protobuf/descriptors/google/protobuf/descriptor.pb'"
+            else
+              print_require(convert_filename(dependency))
+            end
           end
 
           puts

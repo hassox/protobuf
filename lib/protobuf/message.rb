@@ -22,6 +22,21 @@ module Protobuf
       name
     end
 
+    def self.descriptor=(str_or_descriptor)
+      require 'protobuf/descriptors/google/protobuf/descriptor.pb'
+      if(String === str_or_descriptor)
+        @descriptor = ::Google::Protobuf::DescriptorProto.decode(str_or_descriptor)
+      elsif ::Google::Protobuf::DescriptorProto === str_or_descriptor
+        @descriptor = str_or_descriptor
+      else
+        raise "Incorrect field descriptor type: #{str_or_descriptor.class.name}"
+      end
+    end
+
+    def self.descriptor
+      @descriptor
+    end
+
     ##
     # Constructor
     #
@@ -122,7 +137,7 @@ module Protobuf
     def ==(obj)
       return false unless obj.is_a?(self.class)
       each_field do |field, value|
-        return false unless value == obj.__send__(field.name)
+        return false unless value == obj.__send__(field.tag)
       end
       true
     end

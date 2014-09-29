@@ -31,6 +31,21 @@ module Protobuf
     # Public: Allows setting Options on the Enum class.
     include ::Protobuf::Optionable
 
+    def self.descriptor=(str_or_descriptor)
+      require 'protobuf/descriptors/google/protobuf/descriptor.pb'
+      if(String === str_or_descriptor)
+        @descriptor = ::Google::Protobuf::EnumDescriptorProto.decode(str_or_descriptor)
+      elsif ::Google::Protobuf::EnumDescriptorProto === str_or_descriptor
+        @descriptor = str_or_descriptor
+      else
+        raise "Incorrect field descriptor type: #{str_or_descriptor.class.name}"
+      end
+    end
+
+    def self.descriptor
+      @descriptor
+    end
+
     def self.aliases_allowed?
       self.get_option(:allow_alias)
     end
@@ -73,6 +88,7 @@ module Protobuf
       enum = self.new(self, name, tag)
       @enums ||= []
       @enums << enum
+      name = name[0].upcase + name[1..-1]
       const_set(name, enum)
     end
 

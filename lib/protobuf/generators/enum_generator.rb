@@ -13,6 +13,7 @@ module Protobuf
           tags = []
 
           print_class(descriptor.name, :enum) do
+            puts "self.descriptor = #{descriptor.encode().inspect}"
             if allow_alias?
               puts "set_option :allow_alias"
               puts

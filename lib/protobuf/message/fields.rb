@@ -90,6 +90,8 @@ module Protobuf
       end
 
       def define_field(rule, type_class, field_name, tag, options)
+        @all_fields = nil
+
         raise_if_tag_collision(tag, field_name)
         raise_if_name_collision(field_name)
 
@@ -99,7 +101,7 @@ module Protobuf
 
         class_eval(<<-RAW_GETTER, __FILE__, __LINE__ + 1)
           define_method("#{field_name}!") do
-            @values[:#{field_name}]
+            @values[:"#{tag}"]
           end
         RAW_GETTER
       end
