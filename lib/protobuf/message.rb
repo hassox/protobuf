@@ -14,6 +14,16 @@ module Protobuf
     extend ::Protobuf::Message::Fields
     include ::Protobuf::Message::Serialization
 
+    def self.descriptor=(descriptor)
+      @_descriptor = descriptor
+    end
+
+    def self.descriptor
+      @descriptor ||= begin
+        ::Google::DescriptorProto.decode(@_descriptor)
+      end
+    end
+
     ##
     # Class Methods
     #
@@ -30,7 +40,12 @@ module Protobuf
       @values = {}
 
       fields.to_hash.each_pair do |name, value|
-        self[name] = value
+        meth = "#{name}="
+        if respond_to?(meth)
+          __send__("#{name}=", value) if !value.nil?
+        else
+          raise ::Protobuf::FieldNotDefinedError, name unless ::Protobuf.ignore_unknown_fields?
+        end
       end
     end
 
@@ -71,7 +86,7 @@ module Protobuf
       self.class.all_fields.each do |field|
         next unless field_must_be_serialized?(field)
 
-        value = @values[field.getter]
+        value = @values[field.tag]
 
         if value.nil?
           raise ::Protobuf::SerializationError, "Required field #{self.class.name}##{field.name} does not have a value."
@@ -82,7 +97,7 @@ module Protobuf
     end
 
     def has_field?(name)
-      @values.has_key?(name)
+      @values.has_key?(self.class.field_store[name].tag)
     end
 
     def inspect
@@ -102,10 +117,11 @@ module Protobuf
     def to_hash
       result = Hash.new
 
-      @values.keys.each do |field_name|
-        value = __send__(field_name)
+      @values.keys.each do |field_tag|
+        field = self.class.field_store[field_tag]
+        value = __send__(field.getter)
         hashed_value = value.respond_to?(:to_hash_value) ? value.to_hash_value : value
-        result.merge!(field_name => hashed_value)
+        result.merge!(field.name => hashed_value)
       end
 
       return result
@@ -122,7 +138,7 @@ module Protobuf
     def ==(obj)
       return false unless obj.is_a?(self.class)
       each_field do |field, value|
-        return false unless value == obj.__send__(field.name)
+        return false unless value == obj.__send__(field.getter)
       end
       true
     end
@@ -172,11 +188,13 @@ module Protobuf
       }
 
       object.__send__(:initialize)
-      @values.each do |name, value|
+      @values.each do |tag, value|
+        field = self.class.field_store[tag]
+
         if value.is_a?(::Protobuf::Field::FieldArray)
-          object.__send__(name).replace(value.map {|v| duplicate.call(v)})
+          object.__send__(field.getter).replace(value.map {|v| duplicate.call(v)})
         else
-          object.__send__("#{name}=", duplicate.call(value))
+          object.__send__(field.setter, duplicate.call(value))
         end
       end
       object

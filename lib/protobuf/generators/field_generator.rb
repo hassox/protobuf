@@ -54,6 +54,7 @@ module Protobuf
 
       def compile
         run_once(:compile) do
+          applicable_options.push(":descriptor => #{descriptor.encode.inspect}")
           field_definition = [ "#{label} #{type_name}", name, number, applicable_options ]
           puts field_definition.flatten.compact.join(', ')
         end

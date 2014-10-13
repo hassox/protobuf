@@ -155,6 +155,10 @@ module Protobuf
         @io.read
       end
 
+      def print_descriptor(descriptor)
+        puts "self.descriptor = #{descriptor.encode().inspect}\n"
+      end
+
     end
   end
 end

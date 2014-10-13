@@ -46,13 +46,13 @@ module Protobuf
           define_method("#{field.name}=") do |val|
             case
             when val.nil? then
-              @values.delete(field.name)
+              @values.delete(field.tag)
             when val.is_a?(field.type_class) then
-              @values[field.name] = val
+              @values[field.tag] = val
             when val.respond_to?(:to_proto) then
-              @values[field.name] = val.to_proto
+              @values[field.tag] = val.to_proto
             when val.respond_to?(:to_hash) then
-              @values[field.name] = field.type_class.new(val.to_hash)
+              @values[field.tag] = field.type_class.new(val.to_hash)
             else
               raise TypeError, "Expected value of type '#{field.type_class}' for field #{field.name}, but got '#{val.class}'"
             end

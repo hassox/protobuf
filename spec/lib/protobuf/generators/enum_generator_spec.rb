@@ -22,38 +22,24 @@ describe ::Protobuf::Generators::EnumGenerator do
 
   describe '#compile' do
     let(:compiled) {
-      %q{class TestEnum < ::Protobuf::Enum
-  define :FOO, 1
-  define :BAR, 2
-  define :BAZ, 3
-end
-
-}
+      %r{class TestEnum < ::Protobuf::Enum\n\s+self.descriptor\s*=\s*".*?"\n\s+define :FOO, 1\n\s+define :BAR, 2\n\s+define :BAZ, 3\n\s*end}
     }
 
     it 'compiles the enum and it\'s field values' do
       subject.compile
-      expect(subject.to_s).to eq(compiled)
+      expect(subject.to_s).to match(compiled)
     end
 
     context 'when allow_alias option is set' do
       let(:compiled) {
-        %q{class TestEnum < ::Protobuf::Enum
-  set_option :allow_alias
-
-  define :FOO, 1
-  define :BAR, 2
-  define :BAZ, 3
-end
-
-}
-    }
+        %r{set_option :allow_alias}m
+      }
 
       let(:options) { { :allow_alias => true } }
 
       it 'sets the allow_alias option' do
         subject.compile
-        expect(subject.to_s).to eq(compiled)
+        expect(subject.to_s).to match(compiled)
       end
     end
   end

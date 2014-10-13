@@ -28,11 +28,14 @@ namespace :compile do
 
   desc 'Compile rpc protos in protos/ directory'
   task :rpc do |task, args|
+    ENV['PROTOBUF_NO_COLLISION_RAISE'] = 'DO_NOT_RAISE'
     proto_path = ::File.expand_path('../proto', __FILE__)
     output_dir = ::File.expand_path('../tmp/rpc', __FILE__)
     ::FileUtils.mkdir_p(output_dir)
 
-    cmd = %Q{protoc --plugin=./bin/protoc-gen-ruby --ruby_out=#{output_dir} -I #{proto_path} #{File.join(proto_path, '**', '*.proto')}}
+    filez = Dir[File.join(proto_path, '**', '*.proto')]
+
+    cmd = %Q{protoc --plugin=./bin/protoc-gen-ruby --ruby_out=#{output_dir} -I #{proto_path} #{filez.join(' ')}}
 
     puts cmd
     system(cmd)

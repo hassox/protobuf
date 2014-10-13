@@ -7,11 +7,21 @@ module Protobuf
   module Rpc
     # Object to encapsulate the request/response types for a given service method
     #
-    RpcMethod = Struct.new("RpcMethod", :method, :request_type, :response_type)
+    RpcMethod = Struct.new("RpcMethod", :method, :request_type, :response_type, :options)
 
     class Service
       include ::Protobuf::Logging
       include ::Protobuf::Rpc::ServiceFilters
+
+      def self.descriptor=(descriptor)
+        @_descriptor = descriptor
+      end
+
+      def self.descriptor
+        @descriptor ||= begin
+          ::Google::ServiceDescriptorProto.decode(@_descriptor)
+        end
+      end
 
       DEFAULT_HOST = '127.0.0.1'.freeze
       DEFAULT_PORT = 9399
@@ -101,7 +111,7 @@ module Protobuf
       # This methods is only used by the generated service definitions
       # and not useful for user code.
       #
-      def self.rpc(method, request_type, response_type)
+      def self.rpc(method, request_type, response_type, opts={})
         rpcs[method] = RpcMethod.new(method, request_type, response_type)
       end
 

@@ -10,8 +10,24 @@ require 'protobuf'
 require 'protobuf/descriptors'
 require 'protobuf/code_generator'
 
+require 'protobuf/message'
+require 'protobuf/rpc/service'
+
 request_bytes = STDIN.read
+code_generator = ::Protobuf::CodeGenerator.new(request_bytes.dup)
+
+# We need to compile all the extensions and then re-read the request to ensure that our options are correctly filled out on the descriptors
+code_generator.generator_response.file.each do |file|
+  unless file.name == 'google/protobuf/descriptor.pb.rb'
+    eval <<-RUBY
+      def require(*args); nil; end
+      #{file.content}
+    RUBY
+  end
+end
+
 code_generator = ::Protobuf::CodeGenerator.new(request_bytes)
 response_bytes = code_generator.response_bytes
+
 STDOUT.print(response_bytes)
 

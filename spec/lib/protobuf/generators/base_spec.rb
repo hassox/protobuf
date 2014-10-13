@@ -5,10 +5,10 @@ require 'protobuf/generators/base'
 
 describe ::Protobuf::Generators::Base do
 
-  subject { described_class.new(double) }
+  subject { described_class.new(double(:options => {})) }
 
   context 'namespaces' do
-    let(:descriptor) { double(:name => 'Baz') }
+    let(:descriptor) { double(:name => 'Baz', :options => {}) }
     subject { described_class.new(descriptor, 0, :namespace => [ :foo, :bar ]) }
     specify { expect(subject.type_namespace).to eq([ :foo, :bar, 'Baz' ]) }
     specify { expect(subject.fully_qualified_type_namespace).to eq('.foo.bar.Baz') }
@@ -55,7 +55,7 @@ describe ::Protobuf::Generators::Base do
       end
     end
 
-    subject { ToStringTest.new(double) }
+    subject { ToStringTest.new(double(:options => {})) }
 
     it 'compiles and returns the contents' do
       10.times do

@@ -40,6 +40,7 @@ module Protobuf
         run_once(:compile_message) do
           if is_printable?
             print_class(descriptor.name, nil) do
+              print_descriptor(descriptor)
               group = GroupGenerator.new(current_indent)
               group.add_messages(descriptor.nested_type, :extension_fields => @extension_fields, :namespace => type_namespace)
               group.add_message_fields(descriptor.field)
@@ -52,7 +53,7 @@ module Protobuf
 
               group.add_extension_fields(message_extension_fields)
 
-              group.order = [ :message, :field, :extension_range, :extension_field ]
+              group.order = [ :message, :descriptor, :field, :extension_range, :extension_field ]
               print group.to_s
             end
           end

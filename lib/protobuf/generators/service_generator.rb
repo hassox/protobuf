@@ -7,6 +7,7 @@ module Protobuf
       def compile
         run_once(:compile) do
           print_class(descriptor.name, :service) do
+            puts "self.descriptor = #{descriptor.encode.inspect}"
             descriptor.method.each do |method_descriptor|
               puts build_method(method_descriptor)
             end
@@ -18,7 +19,7 @@ module Protobuf
         name = method_descriptor.name
         request_klass = modulize(method_descriptor.input_type)
         response_klass = modulize(method_descriptor.output_type)
-        return "rpc :#{name.underscore}, #{request_klass}, #{response_klass}"
+        return "rpc :#{name.underscore}, #{request_klass}, #{response_klass}, :descriptor => #{method_descriptor.encode.inspect}"
       end
 
     end

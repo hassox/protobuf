@@ -27,33 +27,33 @@ describe ::Protobuf::Generators::FieldGenerator do
   describe '#compile' do
     subject { described_class.new(field).to_s }
 
-    specify { expect(subject).to eq "optional :string, :foo_bar, 3\n" }
+    specify { expect(subject).to match %r{optional :string, :foo_bar, 3, :descriptor => ".*"\n} }
 
     context 'when the type is another message' do
       let(:type_enum) { :TYPE_MESSAGE }
       let(:type_name) { '.foo.bar.Baz' }
 
-      specify { expect(subject).to eq "optional ::Foo::Bar::Baz, :foo_bar, 3\n" }
+      specify { expect(subject).to match %r{optional ::Foo::Bar::Baz, :foo_bar, 3, :descriptor => ".*?"\n} }
     end
 
     context 'when a default value is used' do
       let(:type_enum) { :TYPE_INT32 }
       let(:default_value) { '42' }
-      specify { expect(subject).to eq "optional :int32, :foo_bar, 3, :default => 42\n" }
+      specify { expect(subject).to match %r{optional :int32, :foo_bar, 3, :default => 42, :descriptor => ".*?"\n} }
 
       context 'when type is an enum' do
         let(:type_enum) { :TYPE_ENUM }
         let(:type_name) { '.foo.bar.Baz' }
         let(:default_value) { 'QUUX' }
 
-        specify { expect(subject).to eq "optional ::Foo::Bar::Baz, :foo_bar, 3, :default => ::Foo::Bar::Baz::QUUX\n" }
+        specify { expect(subject).to match %r{optional ::Foo::Bar::Baz, :foo_bar, 3, :default => ::Foo::Bar::Baz::QUUX, :descriptor => ".*?"\n} }
       end
 
       context 'when the type is a string' do
         let(:type_enum) { :TYPE_STRING }
         let(:default_value) { "a default \"string\"" }
 
-        specify { expect(subject).to eq %Q{optional :string, :foo_bar, 3, :default => "a default \"string\""\n} }
+        specify { expect(subject).to match %r{optional :string, :foo_bar, 3, :default => "a default \"string\"", :descriptor => ".*?"} }
       end
 
       context 'when float or double field type' do
@@ -79,19 +79,19 @@ describe ::Protobuf::Generators::FieldGenerator do
     context 'when the field is an extension' do
       let(:extendee) { 'foo.bar.Baz' }
 
-      specify { expect(subject).to eq "optional :string, :foo_bar, 3, :extension => true\n" }
+      specify { expect(subject).to match %r{optional :string, :foo_bar, 3, :extension => true, :descriptor => ".*?"\n} }
     end
 
     context 'when field is packed' do
       let(:field_options) { { :packed => true } }
 
-      specify { expect(subject).to eq "optional :string, :foo_bar, 3, :packed => true\n" }
+      specify { expect(subject).to match %r{optional :string, :foo_bar, 3, :packed => true, :descriptor => ".*?"\n} }
     end
 
     context 'when field is deprecated' do
       let(:field_options) { { :deprecated => true } }
 
-      specify { expect(subject).to eq "optional :string, :foo_bar, 3, :deprecated => true\n" }
+      specify { expect(subject).to match %r{optional :string, :foo_bar, 3, :deprecated => true, :descriptor => ".*?"\n} }
     end
   end
 

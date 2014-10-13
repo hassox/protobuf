@@ -60,9 +60,9 @@ module Protobuf
               val = "#{val}" if val.is_a?(Symbol)
 
               if val.nil?
-                @values.delete(field.name)
+                @values.delete(field.tag)
               elsif field.acceptable?(val)
-                @values[field.name] = val.dup
+                @values[field.tag] = val.dup
               else
                 raise TypeError, "Unacceptable value #{val} for field #{field.name} of type #{field.type_class}"
               end

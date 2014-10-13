@@ -33,7 +33,15 @@ module Protobuf
 
       def initialize(descriptor, indent_level = 0, options = {})
         @descriptor = descriptor
-        @options = options
+        @options = options.presence
+
+        if !@options.present?
+          if descriptor.respond_to?(:options)
+            @options = descriptor.options.try(:to_hash)
+          end
+          @options ||= {}
+        end
+
         @namespace = @options.fetch(:namespace) { [] }
         init_printer(indent_level)
       end

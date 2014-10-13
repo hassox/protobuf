@@ -72,7 +72,7 @@ module Protobuf
       private
 
       def field_must_be_serialized?(field)
-        field.required? || ! @values[field.name].nil?
+        field.required? || ! @values[field.tag].nil?
       end
 
       def set_field_bytes(tag, bytes)

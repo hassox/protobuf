@@ -5,7 +5,7 @@ module Protobuf
     class EnumGenerator < Base
 
       def allow_alias?
-        descriptor.options.try(:allow_alias!) { false }
+        descriptor.options.try(:allow_alias) { false }
       end
 
       def compile
@@ -13,6 +13,8 @@ module Protobuf
           tags = []
 
           print_class(descriptor.name, :enum) do
+            puts "self.descriptor = #{descriptor.encode.inspect}"
+            puts
             if allow_alias?
               puts "set_option :allow_alias"
               puts

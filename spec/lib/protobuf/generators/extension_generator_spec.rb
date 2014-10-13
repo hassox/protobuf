@@ -7,9 +7,9 @@ describe ::Protobuf::Generators::ExtensionGenerator do
 
   let(:field_descriptors) {
     [
-      double('field descriptor 1', :to_s => "  field 1\n"),
-      double('field descriptor 2', :to_s => "  field 2\n"),
-      double('field descriptor 3', :to_s => "  field 3\n")
+      double('field descriptor 1', :to_s => "  field 1\n", :options => {}),
+      double('field descriptor 2', :to_s => "  field 2\n", :options => {}),
+      double('field descriptor 3', :to_s => "  field 3\n", :options => {})
     ]
   }
   let(:message_type) { 'FooBar' }

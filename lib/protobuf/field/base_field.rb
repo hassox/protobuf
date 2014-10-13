@@ -7,6 +7,17 @@ module Protobuf
     class BaseField
       include ::Protobuf::Logging
 
+      def self.descriptor=(descriptor)
+        @_descriptor = descriptor
+      end
+
+      def self.descriptor
+        @descriptor ||= begin
+          ::Google::FieldDescriptorProto.decode(@_descriptor)
+        end
+      end
+
+
       ##
       # Constants
       #
@@ -93,6 +104,10 @@ module Protobuf
 
       def getter
         name
+      end
+
+      def identifier
+        @identifier ||= :"#{tag}"
       end
 
       def message?
@@ -189,7 +204,7 @@ module Protobuf
         message_class.class_eval do
           define_method(field.getter) do
             field.warn_if_deprecated
-            @values[field.name] ||= ::Protobuf::Field::FieldArray.new(field)
+            @values[field.tag] ||= ::Protobuf::Field::FieldArray.new(field)
           end
         end
       end
@@ -211,10 +226,10 @@ module Protobuf
             end
 
             if val.nil? || (val.respond_to?(:empty?) && val.empty?)
-              @values.delete(field.name)
+              @values.delete(field.tag)
             else
-              @values[field.name] ||= ::Protobuf::Field::FieldArray.new(field)
-              @values[field.name].replace(val)
+              @values[field.tag] ||= ::Protobuf::Field::FieldArray.new(field)
+              @values[field.tag].replace(val)
             end
           end
         end
@@ -225,7 +240,7 @@ module Protobuf
         message_class.class_eval do
           define_method(field.getter) do
             field.warn_if_deprecated
-            @values.fetch(field.name, field.default_value)
+            @values.fetch(field.tag, field.default_value)
           end
         end
       end
@@ -237,9 +252,9 @@ module Protobuf
             field.warn_if_deprecated
 
             if val.nil? || (val.respond_to?(:empty?) && val.empty?)
-              @values.delete(field.name)
+              @values.delete(field.tag)
             elsif field.acceptable?(val)
-              @values[field.name] = field.coerce!(val)
+              @values[field.tag] = field.coerce!(val)
             else
               raise TypeError, "Unacceptable value #{val} for field #{field.name} of type #{field.type_class}"
             end

@@ -25,15 +25,20 @@ module Protobuf
 
     def generate_file(file_descriptor)
       file_generator = ::Protobuf::Generators::FileGenerator.new(file_descriptor)
-      @generated_files << file_generator.generate_output_file
+      file = file_generator.generate_output_file
+      @generated_files << file
     end
 
     def response_bytes
+      generator_response.encode
+    end
+
+    def generator_response
       @request.proto_file.each do |file_descriptor|
         generate_file(file_descriptor)
       end
 
-      return ::Google::Protobuf::Compiler::CodeGeneratorResponse.encode(:file => @generated_files)
+      return ::Google::Protobuf::Compiler::CodeGeneratorResponse.new(:file => @generated_files)
     end
 
   end

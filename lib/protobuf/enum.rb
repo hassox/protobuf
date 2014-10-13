@@ -1,6 +1,7 @@
 require 'delegate'
 require 'protobuf/optionable'
 require 'protobuf/deprecator'
+require 'active_support/core_ext/string/inflections'
 
 ##
 # Adding extension to Numeric until
@@ -21,6 +22,16 @@ end
 
 module Protobuf
   class Enum < SimpleDelegator
+
+    def self.descriptor=(descriptor)
+      @_descriptor = descriptor
+    end
+
+    def self.descriptor
+      @descriptor ||= begin
+        ::Google::EnumDescriptorProto.decode(@_descriptor)
+      end
+    end
 
     ##
     # Deprecations
@@ -73,7 +84,8 @@ module Protobuf
       enum = self.new(self, name, tag)
       @enums ||= []
       @enums << enum
-      const_set(name, enum)
+      const_name = name.to_s.underscore.upcase
+      const_set(const_name, enum)
     end
 
     # Public: All defined enums.

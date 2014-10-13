@@ -46,12 +46,12 @@ module Protobuf
           define_method("#{field.name}=") do |value|
             orig_value = value
             if value.nil?
-              @values.delete(field.name)
+              @values.delete(field.tag)
             else
               value = field.type_class.fetch(value)
               raise TypeError, "Invalid Enum value: #{orig_value.inspect} for #{field.name}" unless value
 
-              @values[field.name] = value
+              @values[field.tag] = value
             end
           end
         end
